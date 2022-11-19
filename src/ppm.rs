@@ -1,4 +1,4 @@
-use std::io::{stdout};
+use std::io::stdout;
 
 pub fn render_ppm() {
     const HEIGHT: u32 = 256;
