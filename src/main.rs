@@ -1,25 +1,34 @@
 use crate::hittable::{HitRecord, Hittable};
+use crate::hittable_list::HittableList;
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::util::write_color;
 use crate::vec3::{Color, Point3, Vec3};
 
 mod hittable;
+mod hittable_list;
 mod ray;
 mod sphere;
 mod util;
 mod vec3;
 
 fn ray_color(ray: &Ray) -> Color {
-    // add a single sphere to the scene
-    let sphere = Sphere {
+    // build the scene, with a single sphere
+    let mut scene = HittableList::new();
+    let sphere1 = Sphere {
         center: Point3::new(0.0, 0.0, -1.0),
         radius: 0.5,
     };
+    scene.add(Box::new(sphere1));
+    let sphere2 = Sphere {
+        center: Point3::new(1.0, 0.0, -1.0),
+        radius: 0.5,
+    };
+    scene.add(Box::new(sphere2));
 
     // check for an intersection, and if one is found shade according to the sphere surface normal
     let mut record = HitRecord::dummy();
-    let is_hit = sphere.hit(&ray, 0.0, 100.0, &mut record);
+    let is_hit = scene.hit(&ray, 0.0, 100.0, &mut record);
     if is_hit {
         return 0.5 * (record.normal + 1.0);
     }

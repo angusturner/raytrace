@@ -32,7 +32,8 @@ impl Hittable for Sphere {
         // update the hit-record
         record.t = root;
         record.p = ray.at(root);
-        record.normal = (record.p - self.center) / self.radius;
+        let outward_normal = (record.p - self.center) / self.radius;
+        record.set_face_normal(&ray, outward_normal);
         return true;
     }
 }
