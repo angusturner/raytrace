@@ -1,10 +1,12 @@
-use crate::hittable::{HitRecord, Hittable};
+use crate::hit_record::HitRecord;
+use crate::hittable::Hittable;
 use crate::hittable_list::HittableList;
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::util::write_color;
 use crate::vec3::{Color, Point3, Vec3};
 
+mod hit_record;
 mod hittable;
 mod hittable_list;
 mod ray;

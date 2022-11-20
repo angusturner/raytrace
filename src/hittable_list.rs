@@ -1,4 +1,5 @@
-use crate::hittable::{HitRecord, Hittable};
+use crate::hit_record::HitRecord;
+use crate::hittable::Hittable;
 use crate::ray::Ray;
 
 // a struct to store all the "Hittable" objects in our scene.
