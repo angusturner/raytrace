@@ -1,3 +1,6 @@
+use crate::ray::Ray;
+use crate::vec3::{Point3, Vec3};
+
 pub struct Camera {
     origin: Point3,
     lower_left_corner: Point3,
@@ -31,7 +34,11 @@ impl Camera {
     // get a ray from the camera to the position (u, v) on the viewport, where `u` and `v`
     // are normalised co-ordinates in [0, 1]
     pub fn get_ray(&self, u: f64, v: f64) -> Ray {
-        let dir: Vec3 = lower_left_corner + u * self.horizontal + v * self.vertical - origin;
-        Ray { origin, dir }
+        let dir: Vec3 =
+            self.lower_left_corner + u * self.horizontal + v * self.vertical - self.origin;
+        Ray {
+            origin: self.origin,
+            dir,
+        }
     }
 }
