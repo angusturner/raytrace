@@ -19,6 +19,7 @@ mod util;
 mod vec3;
 
 const SAMPLES_PER_PIXEL: u32 = 100;
+const IMAGE_WIDTH: u32 = 1280;
 
 fn ray_color(ray: &Ray, world: &mut HittableList) -> Color {
     // check for an intersection, and if one is found shade according to the sphere surface normal
@@ -40,8 +41,7 @@ fn main() {
     // image + camera
     let camera = Camera::new();
     let aspect_ratio: f64 = camera.aspect_ratio;
-    let image_width: u32 = 1920;
-    let image_height: u32 = ((image_width as f64) / aspect_ratio) as u32;
+    let image_height: u32 = ((IMAGE_WIDTH as f64) / aspect_ratio) as u32;
 
     // world
     let mut world = HittableList::new();
@@ -60,15 +60,15 @@ fn main() {
     let mut gen = rand::thread_rng();
 
     // render!
-    println!("P3 {} {} 255", image_width, image_height);
+    println!("P3 {} {} 255", IMAGE_WIDTH, image_height);
     for j in (0..image_height).rev() {
-        eprint!("\rScan lines remaining: {:0>3}", j);
-        for i in 0..image_width {
+        eprint!("\rScan lines remaining: {:0>4}", j);
+        for i in 0..IMAGE_WIDTH {
             let mut pixel_color = Color::zeroes();
             for _ in 0..SAMPLES_PER_PIXEL {
                 let noise_u = gen.gen::<f64>();
                 let noise_v = gen.gen::<f64>();
-                let u: f64 = (i as f64 + noise_u) / (image_width as f64 - 1.0); // 0.0 to 1.0
+                let u: f64 = (i as f64 + noise_u) / (IMAGE_WIDTH as f64 - 1.0); // 0.0 to 1.0
                 let v: f64 = (j as f64 + noise_v) / (image_height as f64 - 1.0);
                 let ray = camera.get_ray(u, v);
                 pixel_color += ray_color(&ray, &mut world);

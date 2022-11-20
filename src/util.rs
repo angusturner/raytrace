@@ -1,5 +1,4 @@
 use crate::vec3::Color;
-use rand::Rng;
 
 fn clamp(x: f64, min: f64, max: f64) -> f64 {
     if x < min {
@@ -20,8 +19,6 @@ pub fn write_color(color: Color, samples_per_pixel: u32) {
 }
 
 pub fn random_double(min: Option<f64>, max: Option<f64>) -> f64 {
-    let mut gen = rand::thread_rng();
-    let u = gen.gen::<f64>();
     let u = rand::random::<f64>();
     let min = min.unwrap_or(0.0);
     let max = max.unwrap_or(1.0);
