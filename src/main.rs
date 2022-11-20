@@ -37,9 +37,10 @@ fn ray_color(ray: &Ray, world: &mut HittableList) -> Color {
 }
 
 fn main() {
-    // image
-    let aspect_ratio: f64 = 16.0 / 9.0;
-    let image_width: u32 = 400;
+    // image + camera
+    let camera = Camera::new();
+    let aspect_ratio: f64 = camera.aspect_ratio;
+    let image_width: u32 = 1920;
     let image_height: u32 = ((image_width as f64) / aspect_ratio) as u32;
 
     // world
@@ -54,9 +55,6 @@ fn main() {
         radius: 0.5,
     };
     world.add(Box::new(sphere2));
-
-    // camera
-    let camera = Camera::new();
 
     // rng generator
     let mut gen = rand::thread_rng();

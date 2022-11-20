@@ -6,6 +6,7 @@ pub struct Camera {
     lower_left_corner: Point3,
     horizontal: Vec3,
     vertical: Vec3,
+    pub aspect_ratio: f64,
 }
 
 impl Camera {
@@ -26,6 +27,7 @@ impl Camera {
             lower_left_corner,
             horizontal,
             vertical,
+            aspect_ratio,
         }
     }
 }
