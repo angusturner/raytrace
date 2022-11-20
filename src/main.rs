@@ -5,7 +5,6 @@ use crate::util::write_color;
 use crate::vec3::{Color, Point3, Vec3};
 
 mod hittable;
-mod ppm;
 mod ray;
 mod sphere;
 mod util;
