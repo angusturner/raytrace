@@ -3,7 +3,7 @@ use crate::hittable::Hittable;
 use crate::hittable_list::HittableList;
 use crate::ray::Ray;
 use crate::sphere::Sphere;
-use crate::util::write_color;
+use crate::util::{random_double, write_color};
 use crate::vec3::{Color, Point3, Vec3};
 
 mod hit_record;
@@ -44,6 +44,7 @@ fn ray_color(ray: &Ray) -> Color {
 }
 
 fn main() {
+    eprintln!("{}", random_double(None, None));
     // image
     let aspect_ratio: f64 = 16.0 / 9.0;
     let image_width: u32 = 400;
