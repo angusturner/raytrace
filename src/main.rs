@@ -77,8 +77,8 @@ fn main() {
         albedo: Color::new(0.8, 0.8, 0.0),
     });
     let material_center: Rc<dyn Material> = Rc::new(Lambertian {
-        // albedo: Color::new(0.1, 0.05, 0.5),
-        albedo: Color::new(0.7, 0.3, 0.3),
+        albedo: Color::new(0.1, 0.05, 0.5),
+        // albedo: Color::new(0.7, 0.3, 0.3),
     });
     let material_left: Rc<dyn Material> = Rc::new(Metal {
         albedo: Color::new(0.8, 0.8, 0.8),
