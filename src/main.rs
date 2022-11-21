@@ -6,9 +6,11 @@ use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::util::write_color;
 use crate::vec3::{Color, Point3};
-use std::borrow::BorrowMut;
+use std::rc::Rc;
 
-use crate::random::random_on_unit_sphere;
+use crate::lambertian::Lambertian;
+use crate::material::Material;
+use crate::metal::Metal;
 use rand::rngs::ThreadRng;
 use rand::Rng;
 
@@ -16,15 +18,18 @@ mod camera;
 mod hit_record;
 mod hittable;
 mod hittable_list;
+mod lambertian;
+mod material;
+mod metal;
 mod random;
 mod ray;
 mod sphere;
 mod util;
 mod vec3;
 
-const SAMPLES_PER_PIXEL: u32 = 100;
+const SAMPLES_PER_PIXEL: u32 = 1000;
 const IMAGE_WIDTH: u32 = 640;
-const MAX_DEPTH: u32 = 50;
+const MAX_DEPTH: u32 = 1000;
 
 fn ray_color(ray: &Ray, world: &HittableList, depth: u32, gen: &mut ThreadRng) -> Color {
     let mut record = HitRecord::dummy();
@@ -35,14 +40,20 @@ fn ray_color(ray: &Ray, world: &HittableList, depth: u32, gen: &mut ThreadRng) -
     }
 
     // check for an intersection
-    if world.hit(&ray, 0.0, f64::INFINITY, &mut record) {
-        // random reflection in a direction sampled from tangent sphere
-        let reflect_target: Point3 = record.p + record.normal + random_on_unit_sphere(gen);
-        let reflection: Ray = Ray {
-            origin: record.p,
-            dir: reflect_target - record.p,
+    if world.hit(&ray, 0.001, f64::INFINITY, &mut record) {
+        // get the material pointer from the hit-record
+        let mat_ptr: Rc<dyn Material> = match &record.mat_ptr {
+            Some(val) => Rc::clone(val),
+            None => panic!(),
         };
-        return 0.5 * ray_color(&reflection, &world, depth - 1, gen);
+
+        // check for scattered ray on that material
+        return match mat_ptr.scatter(&ray, &record, gen) {
+            Some((reflected_ray, attenuation)) => {
+                attenuation * ray_color(&reflected_ray, &world, depth - 1, gen)
+            }
+            None => Color::zeroes(),
+        };
     }
 
     // otherwise, shade background according to the y-component of the normalised ray direction
@@ -61,17 +72,48 @@ fn main() {
 
     // world
     let mut world = HittableList::new();
+
+    let material_ground: Rc<dyn Material> = Rc::new(Lambertian {
+        albedo: Color::new(0.8, 0.8, 0.0),
+    });
+    let material_center: Rc<dyn Material> = Rc::new(Lambertian {
+        // albedo: Color::new(0.1, 0.05, 0.5),
+        albedo: Color::new(0.7, 0.3, 0.3),
+    });
+    let material_left: Rc<dyn Material> = Rc::new(Metal {
+        albedo: Color::new(0.8, 0.8, 0.8),
+    });
+    let material_right: Rc<dyn Material> = Rc::new(Metal {
+        albedo: Color::new(0.8, 0.6, 0.2),
+    });
+
     let sphere1 = Sphere {
         center: Point3::new(0.0, 0.0, -1.0),
         radius: 0.5,
+        mat_ptr: material_center,
     };
     world.add(Box::new(sphere1));
+
     let sphere2 = Sphere {
-        // center: Point3::new(1.0, 0.0, -2.0),
-        center: Point3::new(0.0,-100.5,-1.0),
+        center: Point3::new(0.0, -100.5, -1.0),
         radius: 100.0,
+        mat_ptr: material_ground,
     };
     world.add(Box::new(sphere2));
+
+    let sphere3 = Sphere {
+        center: Point3::new(-1.0, -0.0, -1.0),
+        radius: 0.5,
+        mat_ptr: material_left,
+    };
+    world.add(Box::new(sphere3));
+
+    let sphere4 = Sphere {
+        center: Point3::new(1.0, 0.0, -1.0),
+        radius: 0.5,
+        mat_ptr: material_right,
+    };
+    world.add(Box::new(sphere4));
 
     // rng generator
     let mut gen = rand::thread_rng();
