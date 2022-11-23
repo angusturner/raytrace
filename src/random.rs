@@ -9,8 +9,8 @@ pub fn random_double(min: Option<f64>, max: Option<f64>, gen: &mut ThreadRng) ->
     min + (max - min) * u
 }
 
-// sample a random vector from the surface of the unit sphere, bounded in [-1, 1]
-pub fn random_on_unit_sphere(gen: &mut ThreadRng) -> Vec3 {
+// sample a random vector in a unit-sphere, bounded in [-1, 1]
+pub fn random_in_unit_sphere(gen: &mut ThreadRng) -> Vec3 {
     let mut u = [0f64; 3];
     loop {
         gen.fill(&mut u);
@@ -18,6 +18,11 @@ pub fn random_on_unit_sphere(gen: &mut ThreadRng) -> Vec3 {
         if vec.length_squared() >= 1.0 {
             continue;
         }
-        return vec.unit_vector();
+        return vec;
     }
+}
+
+// sample a random vector from the surface of the unit sphere
+pub fn random_on_unit_sphere(gen: &mut ThreadRng) -> Vec3 {
+    return random_in_unit_sphere(gen).unit_vector();
 }

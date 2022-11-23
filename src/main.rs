@@ -8,6 +8,7 @@ use crate::util::write_color;
 use crate::vec3::{Color, Point3};
 use std::rc::Rc;
 
+use crate::dielectric::Dielectric;
 use crate::lambertian::Lambertian;
 use crate::material::Material;
 use crate::metal::Metal;
@@ -15,6 +16,7 @@ use rand::rngs::ThreadRng;
 use rand::Rng;
 
 mod camera;
+mod dielectric;
 mod hit_record;
 mod hittable;
 mod hittable_list;
@@ -27,9 +29,9 @@ mod sphere;
 mod util;
 mod vec3;
 
-const SAMPLES_PER_PIXEL: u32 = 1000;
-const IMAGE_WIDTH: u32 = 640;
-const MAX_DEPTH: u32 = 1000;
+const SAMPLES_PER_PIXEL: u32 = 2000;
+const IMAGE_WIDTH: u32 = 1280;
+const MAX_DEPTH: u32 = 100;
 
 fn ray_color(ray: &Ray, world: &HittableList, depth: u32, gen: &mut ThreadRng) -> Color {
     let mut record = HitRecord::dummy();
@@ -64,6 +66,8 @@ fn ray_color(ray: &Ray, world: &HittableList, depth: u32, gen: &mut ThreadRng) -
     (1.0 - t) * white + t * blue
 }
 
+type RcMaterial = Rc<dyn Material>;
+
 fn main() {
     // image + camera
     let camera = Camera::new();
@@ -73,47 +77,55 @@ fn main() {
     // world
     let mut world = HittableList::new();
 
-    let material_ground: Rc<dyn Material> = Rc::new(Lambertian {
-        albedo: Color::new(0.8, 0.8, 0.0),
+    let material_ground: RcMaterial = Rc::new(Lambertian {
+        albedo: Color::new(247.0 / 255.0, 246.0 / 255.0, 197.0 / 255.0),
     });
-    let material_center: Rc<dyn Material> = Rc::new(Lambertian {
-        albedo: Color::new(0.1, 0.05, 0.5),
-        // albedo: Color::new(0.7, 0.3, 0.3),
+    let glass: RcMaterial = Rc::new(Dielectric { ir: 1.5 });
+    let material_center: RcMaterial = Rc::new(Lambertian {
+        albedo: Color::new(124.0 / 255.0, 36.0 / 255.0, 148.0 / 255.0),
     });
-    let material_left: Rc<dyn Material> = Rc::new(Metal {
-        albedo: Color::new(0.8, 0.8, 0.8),
-    });
-    let material_right: Rc<dyn Material> = Rc::new(Metal {
-        albedo: Color::new(0.8, 0.6, 0.2),
+    // let material_left: RcMaterial = Rc::new(Metal {
+    //     albedo: Color::new(0.8, 0.8, 0.8),
+    // });
+    let material_right: RcMaterial = Rc::new(Metal {
+        albedo: Color::new(183.0 / 255.0, 192.0 / 255.0, 238.0 / 255.0),
+        fuzz: 0.3,
     });
 
-    let sphere1 = Sphere {
+    let sphere_center = Sphere {
         center: Point3::new(0.0, 0.0, -1.0),
         radius: 0.5,
+        // mat_ptr: Rc::clone(&glass),
         mat_ptr: material_center,
     };
-    world.add(Box::new(sphere1));
+    world.add(Box::new(sphere_center));
 
-    let sphere2 = Sphere {
+    let sphere_ground = Sphere {
         center: Point3::new(0.0, -100.5, -1.0),
         radius: 100.0,
         mat_ptr: material_ground,
     };
-    world.add(Box::new(sphere2));
+    world.add(Box::new(sphere_ground));
 
-    let sphere3 = Sphere {
+    let sphere_left = Sphere {
         center: Point3::new(-1.0, -0.0, -1.0),
         radius: 0.5,
-        mat_ptr: material_left,
+        mat_ptr: Rc::clone(&glass), // mat_ptr: material_left,
     };
-    world.add(Box::new(sphere3));
+    world.add(Box::new(sphere_left));
+    let sphere_left_b = Sphere {
+        center: Point3::new(-1.0, -0.0, -1.0),
+        radius: -0.45,
+        mat_ptr: Rc::clone(&glass), // mat_ptr: material_left,
+    };
+    world.add(Box::new(sphere_left_b));
 
-    let sphere4 = Sphere {
+    let sphere_right = Sphere {
         center: Point3::new(1.0, 0.0, -1.0),
         radius: 0.5,
         mat_ptr: material_right,
     };
-    world.add(Box::new(sphere4));
+    world.add(Box::new(sphere_right));
 
     // rng generator
     let mut gen = rand::thread_rng();
