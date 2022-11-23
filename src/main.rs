@@ -29,9 +29,9 @@ mod sphere;
 mod util;
 mod vec3;
 
-const SAMPLES_PER_PIXEL: u32 = 2000;
-const IMAGE_WIDTH: u32 = 1280;
-const MAX_DEPTH: u32 = 100;
+const SAMPLES_PER_PIXEL: u32 = 100;
+const IMAGE_WIDTH: u32 = 640;
+const MAX_DEPTH: u32 = 50;
 
 fn ray_color(ray: &Ray, world: &HittableList, depth: u32, gen: &mut ThreadRng) -> Color {
     let mut record = HitRecord::dummy();
@@ -77,55 +77,112 @@ fn main() {
     // world
     let mut world = HittableList::new();
 
-    let material_ground: RcMaterial = Rc::new(Lambertian {
-        albedo: Color::new(247.0 / 255.0, 246.0 / 255.0, 197.0 / 255.0),
-    });
     let glass: RcMaterial = Rc::new(Dielectric { ir: 1.5 });
-    let material_center: RcMaterial = Rc::new(Lambertian {
+    let diffuse_cream: RcMaterial = Rc::new(Lambertian {
+        albedo: Color::new(252.0 / 255.0, 246.0 / 255.0, 177.0 / 255.0),
+    });
+    let diffuse_magenta: RcMaterial = Rc::new(Lambertian {
         albedo: Color::new(124.0 / 255.0, 36.0 / 255.0, 148.0 / 255.0),
     });
-    // let material_left: RcMaterial = Rc::new(Metal {
-    //     albedo: Color::new(0.8, 0.8, 0.8),
-    // });
-    let material_right: RcMaterial = Rc::new(Metal {
+    let diffuse_pink: RcMaterial = Rc::new(Lambertian {
+        albedo: Color::new(252.0 / 255.0, 109.0 / 255.0, 171.0 / 255.0),
+    });
+    let diffuse_green: RcMaterial = Rc::new(Lambertian {
+        albedo: Color::new(169.0 / 255.0, 229.0 / 255.0, 187.0 / 255.0),
+    });
+    let diffuse_orange: RcMaterial = Rc::new(Lambertian {
+        albedo: Color::new(247.0 / 255.0, 179.0 / 255.0, 43.0 / 255.0),
+    });
+    let metallic_blue: RcMaterial = Rc::new(Metal {
         albedo: Color::new(183.0 / 255.0, 192.0 / 255.0, 238.0 / 255.0),
         fuzz: 0.3,
     });
+    let metallic_grey: RcMaterial = Rc::new(Metal {
+        albedo: Color::new(128.0 / 255.0, 128.0 / 255.0, 128.0 / 255.0),
+        fuzz: 0.05,
+    });
 
+    // vertical spheres
     let sphere_center = Sphere {
-        center: Point3::new(0.0, 0.0, -1.0),
-        radius: 0.5,
-        // mat_ptr: Rc::clone(&glass),
-        mat_ptr: material_center,
+        center: Point3::new(0.0, -0.5, -1.25),
+        radius: 0.25,
+        mat_ptr: diffuse_magenta,
     };
     world.add(Box::new(sphere_center));
+    let sphere_center_b = Sphere {
+        center: Point3::new(0.0, 0.0, -1.25),
+        radius: 0.25,
+        mat_ptr: Rc::clone(&glass),
+    };
+    world.add(Box::new(sphere_center_b));
+    let sphere_center_c = Sphere {
+        center: Point3::new(0.0, 0.5, -1.25),
+        radius: 0.25,
+        mat_ptr: diffuse_green,
+    };
+    world.add(Box::new(sphere_center_c));
 
+    // horizontal spheres
+    let sphere_center_back = Sphere {
+        center: Point3::new(-2.0, 0.0, -2.25),
+        radius: 0.25,
+        mat_ptr: diffuse_pink,
+    };
+    world.add(Box::new(sphere_center_back));
+    let sphere_center_b_back = Sphere {
+        center: Point3::new(0.0, 0.0, -2.25),
+        radius: 0.25,
+        mat_ptr: metallic_blue,
+    };
+    world.add(Box::new(sphere_center_b_back));
+    let sphere_center_c_back = Sphere {
+        center: Point3::new(2.0, 0.0, -2.25),
+        radius: 0.25,
+        mat_ptr: diffuse_orange,
+    };
+    world.add(Box::new(sphere_center_c_back));
+
+    // ground + sky sphere
     let sphere_ground = Sphere {
-        center: Point3::new(0.0, -100.5, -1.0),
+        center: Point3::new(0.0, -100.75, -1.25),
         radius: 100.0,
-        mat_ptr: material_ground,
+        mat_ptr: diffuse_cream,
     };
     world.add(Box::new(sphere_ground));
+    let sphere_sky = Sphere {
+        center: Point3::new(0.0, 20.75, -1.25),
+        radius: 20.0,
+        mat_ptr: metallic_grey,
+    };
+    world.add(Box::new(sphere_sky));
 
+    // hollow-sphere on left
     let sphere_left = Sphere {
-        center: Point3::new(-1.0, -0.0, -1.0),
-        radius: 0.5,
+        center: Point3::new(-1.0, -0.0, -1.25),
+        radius: 0.75,
         mat_ptr: Rc::clone(&glass), // mat_ptr: material_left,
     };
     world.add(Box::new(sphere_left));
     let sphere_left_b = Sphere {
-        center: Point3::new(-1.0, -0.0, -1.0),
-        radius: -0.45,
+        center: Point3::new(-1.0, -0.0, -1.25),
+        radius: -0.60,
         mat_ptr: Rc::clone(&glass), // mat_ptr: material_left,
     };
     world.add(Box::new(sphere_left_b));
 
+    // hollow-sphere on right
     let sphere_right = Sphere {
-        center: Point3::new(1.0, 0.0, -1.0),
-        radius: 0.5,
-        mat_ptr: material_right,
+        center: Point3::new(1.0, -0.0, -1.25),
+        radius: 0.75,
+        mat_ptr: Rc::clone(&glass), // mat_ptr: material_left,
     };
     world.add(Box::new(sphere_right));
+    let sphere_right_b = Sphere {
+        center: Point3::new(1.0, -0.0, -1.25),
+        radius: -0.60,
+        mat_ptr: Rc::clone(&glass), // mat_ptr: material_left,
+    };
+    world.add(Box::new(sphere_right_b));
 
     // rng generator
     let mut gen = rand::thread_rng();
