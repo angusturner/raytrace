@@ -29,9 +29,9 @@ mod sphere;
 mod util;
 mod vec3;
 
-const SAMPLES_PER_PIXEL: u32 = 10000;
-const IMAGE_WIDTH: u32 = 1280;
-const MAX_DEPTH: u32 = 500;
+const SAMPLES_PER_PIXEL: u32 = 5000;
+const IMAGE_WIDTH: u32 = 640;
+const MAX_DEPTH: u32 = 100;
 
 fn ray_color(ray: &Ray, world: &HittableList, depth: u32, gen: &mut ThreadRng) -> Color {
     let mut record = HitRecord::dummy();
@@ -70,8 +70,15 @@ type RcMaterial = Rc<dyn Material>;
 
 fn main() {
     // image + camera
-    let camera = Camera::new();
-    let aspect_ratio: f64 = camera.aspect_ratio;
+    let aspect_ratio: f64 = 16.0 / 9.0;
+    let camera = Camera::new(
+        Point3::new(-3.5, 2.0, 2.0),
+        Point3::new(0.0, 0.0, -1.25),
+        Point3::new(0.0, 1.0, 0.0),
+        40.0,
+        aspect_ratio,
+    );
+
     let image_height: u32 = ((IMAGE_WIDTH as f64) / aspect_ratio) as u32;
 
     // world
@@ -149,12 +156,12 @@ fn main() {
         mat_ptr: diffuse_cream,
     };
     world.add(Box::new(sphere_ground));
-    let sphere_sky = Sphere {
-        center: Point3::new(0.0, 20.75, -1.25),
-        radius: 20.0,
-        mat_ptr: metallic_grey,
-    };
-    world.add(Box::new(sphere_sky));
+    // let sphere_sky = Sphere {
+    //     center: Point3::new(0.0, 20.75, -1.25),
+    //     radius: 20.0,
+    //     mat_ptr: metallic_grey,
+    // };
+    // world.add(Box::new(sphere_sky));
 
     // hollow-sphere on left
     let sphere_left = Sphere {

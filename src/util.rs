@@ -1,4 +1,5 @@
 use crate::vec3::Color;
+use std::f64::consts::PI;
 
 fn clamp(x: f64, min: f64, max: f64) -> f64 {
     if x < min {
@@ -8,6 +9,10 @@ fn clamp(x: f64, min: f64, max: f64) -> f64 {
         return max;
     }
     return x;
+}
+
+pub fn degrees_to_radians(degrees: f64) -> f64 {
+    2.0 * PI * degrees / 360.0
 }
 
 pub fn write_color(color: Color, samples_per_pixel: u32) {
