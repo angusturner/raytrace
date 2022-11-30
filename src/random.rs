@@ -26,3 +26,20 @@ pub fn random_in_unit_sphere(gen: &mut ThreadRng) -> Vec3 {
 pub fn random_on_unit_sphere(gen: &mut ThreadRng) -> Vec3 {
     return random_in_unit_sphere(gen).unit_vector();
 }
+
+// sample from inside a disk
+pub fn random_in_unit_disk(gen: &mut ThreadRng) -> Vec3 {
+    let mut u = [0f64; 2];
+    loop {
+        gen.fill(&mut u);
+        let vec = Vec3 {
+            x: u[0] * 2.0 - 1.0,
+            y: u[1] * 2.0 - 1.0,
+            z: 0.0,
+        };
+        if vec.length_squared() >= 1.0 {
+            continue;
+        }
+        return vec;
+    }
+}

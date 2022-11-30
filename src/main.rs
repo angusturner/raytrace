@@ -71,12 +71,18 @@ type RcMaterial = Rc<dyn Material>;
 fn main() {
     // image + camera
     let aspect_ratio: f64 = 16.0 / 9.0;
+    let aperture = 2.0;
+    let look_from = Point3::new(-3.5, 2.0, 2.0);
+    let look_at = Point3::new(0.0, 0.0, -1.25);
+    let dist_to_focus = (look_from - look_at).length();
     let camera = Camera::new(
-        Point3::new(-3.5, 2.0, 2.0),
-        Point3::new(0.0, 0.0, -1.25),
+        look_from,
+        look_at,
         Point3::new(0.0, 1.0, 0.0),
         40.0,
         aspect_ratio,
+        aperture,
+        dist_to_focus,
     );
 
     let image_height: u32 = ((IMAGE_WIDTH as f64) / aspect_ratio) as u32;
@@ -205,7 +211,7 @@ fn main() {
                 let noise_v = gen.gen::<f64>();
                 let u: f64 = (i as f64 + noise_u) / (IMAGE_WIDTH as f64 - 1.0); // 0.0 to 1.0
                 let v: f64 = (j as f64 + noise_v) / (image_height as f64 - 1.0);
-                let ray = camera.get_ray(u, v);
+                let ray = camera.get_ray(u, v, &mut gen);
                 pixel_color += ray_color(&ray, &world, MAX_DEPTH, &mut gen);
             }
             write_color(pixel_color, SAMPLES_PER_PIXEL);
