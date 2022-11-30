@@ -2,7 +2,7 @@ use crate::vec3::Vec3;
 use rand::prelude::ThreadRng;
 use rand::Rng;
 
-pub fn random_double(min: Option<f64>, max: Option<f64>, gen: &mut ThreadRng) -> f64 {
+pub fn _random_double(min: Option<f64>, max: Option<f64>, gen: &mut ThreadRng) -> f64 {
     let u = gen.gen::<f64>();
     let min = min.unwrap_or(0.0);
     let max = max.unwrap_or(1.0);
