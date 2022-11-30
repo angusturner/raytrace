@@ -1,3 +1,5 @@
+use rand::rngs::ThreadRng;
+use rand::Rng;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};
 
 #[derive(Debug, Copy, Clone)]
@@ -20,6 +22,14 @@ impl Vec3 {
             x: 0.0,
             y: 0.0,
             z: 0.0,
+        }
+    }
+
+    pub fn random(gen: &mut ThreadRng) -> Self {
+        Self {
+            x: gen.gen::<f64>(),
+            y: gen.gen::<f64>(),
+            z: gen.gen::<f64>(),
         }
     }
 

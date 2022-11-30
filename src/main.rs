@@ -3,18 +3,16 @@ use crate::hit_record::HitRecord;
 use crate::hittable::Hittable;
 use crate::hittable_list::HittableList;
 use crate::ray::Ray;
-use crate::sphere::Sphere;
 use crate::util::write_color;
 use crate::vec3::{Color, Point3};
 use std::rc::Rc;
 
-use crate::dielectric::Dielectric;
-use crate::lambertian::Lambertian;
+use crate::build_random_scene::build_random_scene;
 use crate::material::Material;
-use crate::metal::Metal;
 use rand::rngs::ThreadRng;
 use rand::Rng;
 
+mod build_random_scene;
 mod camera;
 mod dielectric;
 mod hit_record;
@@ -29,8 +27,8 @@ mod sphere;
 mod util;
 mod vec3;
 
-const SAMPLES_PER_PIXEL: u32 = 1000;
-const IMAGE_WIDTH: u32 = 640;
+const SAMPLES_PER_PIXEL: u32 = 500;
+const IMAGE_WIDTH: u32 = 800;
 const MAX_DEPTH: u32 = 50;
 
 fn ray_color(ray: &Ray, world: &HittableList, depth: u32, gen: &mut ThreadRng) -> Color {
@@ -66,20 +64,18 @@ fn ray_color(ray: &Ray, world: &HittableList, depth: u32, gen: &mut ThreadRng) -
     (1.0 - t) * white + t * blue
 }
 
-type RcMaterial = Rc<dyn Material>;
-
 fn main() {
     // image + camera
-    let aspect_ratio: f64 = 16.0 / 9.0;
-    let aperture = 0.5;
-    let look_from = Point3::new(-3.5, 2.0, 2.0);
-    let look_at = Point3::new(0.0, 0.0, -1.25);
-    let dist_to_focus = (look_from - look_at).length();
+    let aspect_ratio: f64 = 3.0 / 2.0;
+    let aperture = 0.1;
+    let look_from = Point3::new(13.0, 2.0, 3.0);
+    let look_at = Point3::new(0.0, 0.0, 0.0);
+    let dist_to_focus = 10.0;
     let camera = Camera::new(
         look_from,
         look_at,
         Point3::new(0.0, 1.0, 0.0),
-        40.0,
+        20.0,
         aspect_ratio,
         aperture,
         dist_to_focus,
@@ -88,114 +84,7 @@ fn main() {
     let image_height: u32 = ((IMAGE_WIDTH as f64) / aspect_ratio) as u32;
 
     // world
-    let mut world = HittableList::new();
-
-    let glass: RcMaterial = Rc::new(Dielectric { ir: 1.5 });
-    let diffuse_cream: RcMaterial = Rc::new(Lambertian {
-        albedo: Color::new(252.0 / 255.0, 246.0 / 255.0, 177.0 / 255.0),
-    });
-    let diffuse_magenta: RcMaterial = Rc::new(Lambertian {
-        albedo: Color::new(124.0 / 255.0, 36.0 / 255.0, 148.0 / 255.0),
-    });
-    let diffuse_pink: RcMaterial = Rc::new(Lambertian {
-        albedo: Color::new(252.0 / 255.0, 109.0 / 255.0, 171.0 / 255.0),
-    });
-    let diffuse_green: RcMaterial = Rc::new(Lambertian {
-        albedo: Color::new(169.0 / 255.0, 229.0 / 255.0, 187.0 / 255.0),
-    });
-    let diffuse_orange: RcMaterial = Rc::new(Lambertian {
-        albedo: Color::new(247.0 / 255.0, 179.0 / 255.0, 43.0 / 255.0),
-    });
-    let metallic_blue: RcMaterial = Rc::new(Metal {
-        albedo: Color::new(183.0 / 255.0, 192.0 / 255.0, 238.0 / 255.0),
-        fuzz: 0.3,
-    });
-    let metallic_grey: RcMaterial = Rc::new(Metal {
-        albedo: Color::new(128.0 / 255.0, 128.0 / 255.0, 128.0 / 255.0),
-        fuzz: 0.05,
-    });
-
-    // vertical spheres
-    let sphere_center = Sphere {
-        center: Point3::new(0.0, -0.5, -1.25),
-        radius: 0.25,
-        mat_ptr: diffuse_magenta,
-    };
-    world.add(Box::new(sphere_center));
-    let sphere_center_b = Sphere {
-        center: Point3::new(0.0, 0.0, -1.25),
-        radius: 0.25,
-        mat_ptr: Rc::clone(&glass),
-    };
-    world.add(Box::new(sphere_center_b));
-    let sphere_center_c = Sphere {
-        center: Point3::new(0.0, 0.5, -1.25),
-        radius: 0.25,
-        mat_ptr: diffuse_green,
-    };
-    world.add(Box::new(sphere_center_c));
-
-    // horizontal spheres
-    let sphere_center_back = Sphere {
-        center: Point3::new(-2.0, 0.0, -2.25),
-        radius: 0.25,
-        mat_ptr: diffuse_pink,
-    };
-    world.add(Box::new(sphere_center_back));
-    let sphere_center_b_back = Sphere {
-        center: Point3::new(0.0, 0.0, -2.25),
-        radius: 0.25,
-        mat_ptr: metallic_blue,
-    };
-    world.add(Box::new(sphere_center_b_back));
-    let sphere_center_c_back = Sphere {
-        center: Point3::new(2.0, 0.0, -2.25),
-        radius: 0.25,
-        mat_ptr: diffuse_orange,
-    };
-    world.add(Box::new(sphere_center_c_back));
-
-    // ground + sky sphere
-    let sphere_ground = Sphere {
-        center: Point3::new(0.0, -100.75, -1.25),
-        radius: 100.0,
-        mat_ptr: diffuse_cream,
-    };
-    world.add(Box::new(sphere_ground));
-    // let sphere_sky = Sphere {
-    //     center: Point3::new(0.0, 20.75, -1.25),
-    //     radius: 20.0,
-    //     mat_ptr: metallic_grey,
-    // };
-    // world.add(Box::new(sphere_sky));
-
-    // hollow-sphere on left
-    let sphere_left = Sphere {
-        center: Point3::new(-1.0, -0.0, -1.25),
-        radius: 0.75,
-        mat_ptr: Rc::clone(&glass), // mat_ptr: material_left,
-    };
-    world.add(Box::new(sphere_left));
-    let sphere_left_b = Sphere {
-        center: Point3::new(-1.0, -0.0, -1.25),
-        radius: -0.60,
-        mat_ptr: Rc::clone(&glass), // mat_ptr: material_left,
-    };
-    world.add(Box::new(sphere_left_b));
-
-    // hollow-sphere on right
-    let sphere_right = Sphere {
-        center: Point3::new(1.0, -0.0, -1.25),
-        radius: 0.75,
-        mat_ptr: Rc::clone(&glass), // mat_ptr: material_left,
-    };
-    world.add(Box::new(sphere_right));
-    let sphere_right_b = Sphere {
-        center: Point3::new(1.0, -0.0, -1.25),
-        radius: -0.60,
-        mat_ptr: Rc::clone(&glass), // mat_ptr: material_left,
-    };
-    world.add(Box::new(sphere_right_b));
+    let world = build_random_scene();
 
     // rng generator
     let mut gen = rand::thread_rng();
