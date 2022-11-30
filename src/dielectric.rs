@@ -1,7 +1,6 @@
 use crate::hit_record::HitRecord;
 use crate::material::Material;
 use crate::metal::reflect;
-use crate::random::random_double;
 use crate::ray::Ray;
 use crate::vec3::{Color, Vec3};
 use rand::prelude::ThreadRng;

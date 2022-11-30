@@ -29,9 +29,9 @@ mod sphere;
 mod util;
 mod vec3;
 
-const SAMPLES_PER_PIXEL: u32 = 5000;
+const SAMPLES_PER_PIXEL: u32 = 1000;
 const IMAGE_WIDTH: u32 = 640;
-const MAX_DEPTH: u32 = 100;
+const MAX_DEPTH: u32 = 50;
 
 fn ray_color(ray: &Ray, world: &HittableList, depth: u32, gen: &mut ThreadRng) -> Color {
     let mut record = HitRecord::dummy();
@@ -71,7 +71,7 @@ type RcMaterial = Rc<dyn Material>;
 fn main() {
     // image + camera
     let aspect_ratio: f64 = 16.0 / 9.0;
-    let aperture = 2.0;
+    let aperture = 0.5;
     let look_from = Point3::new(-3.5, 2.0, 2.0);
     let look_at = Point3::new(0.0, 0.0, -1.25);
     let dist_to_focus = (look_from - look_at).length();
