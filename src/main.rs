@@ -27,9 +27,9 @@ mod sphere;
 mod util;
 mod vec3;
 
-const SAMPLES_PER_PIXEL: u32 = 500;
+const SAMPLES_PER_PIXEL: u32 = 5000;
 const IMAGE_WIDTH: u32 = 800;
-const MAX_DEPTH: u32 = 50;
+const MAX_DEPTH: u32 = 200;
 
 fn ray_color(ray: &Ray, world: &HittableList, depth: u32, gen: &mut ThreadRng) -> Color {
     let mut record = HitRecord::dummy();
