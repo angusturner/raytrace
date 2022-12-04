@@ -9,7 +9,7 @@ pub struct Camera {
     lower_left_corner: Point3,
     horizontal: Vec3,
     vertical: Vec3,
-    aspect_ratio: f64,
+    pub aspect_ratio: f64,
     lens_radius: f64,
     u: Vec3,
     v: Vec3,

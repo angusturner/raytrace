@@ -6,9 +6,9 @@ use crate::metal::Metal;
 use crate::sphere::Sphere;
 use crate::vec3::{Color, Point3, Vec3};
 use rand::Rng;
-use std::rc::Rc;
+use std::sync::Arc;
 
-type RcMaterial = Rc<dyn Material>;
+type ArcMaterial = Arc<dyn Material + Send + Sync>;
 
 pub fn build_random_scene() -> HittableList {
     let mut world = HittableList::new();
@@ -16,7 +16,7 @@ pub fn build_random_scene() -> HittableList {
     let mut gen = rand::thread_rng();
 
     // ground
-    let ground_mat: RcMaterial = Rc::new(Lambertian {
+    let ground_mat: ArcMaterial = Arc::new(Lambertian {
         albedo: Color::new(0.5, 0.5, 0.5),
     });
     let ground = Sphere {
@@ -38,19 +38,19 @@ pub fn build_random_scene() -> HittableList {
             };
 
             if (center - Point3::new(4.0, 0.2, 0.0)).length() > 0.9 {
-                let sphere_mat: RcMaterial;
+                let sphere_mat: ArcMaterial;
                 if choose_mat < 0.8 {
                     // diffuse
                     let albedo = Color::random(&mut gen) * Color::random(&mut gen);
-                    sphere_mat = Rc::new(Lambertian { albedo });
+                    sphere_mat = Arc::new(Lambertian { albedo });
                 } else if choose_mat < 0.95 {
                     // metal
                     let albedo = Color::random(&mut gen) * 0.5 + 0.5; // [0.5, 1)
                     let fuzz = gen.gen::<f64>() * 0.5;
-                    sphere_mat = Rc::new(Metal { albedo, fuzz });
+                    sphere_mat = Arc::new(Metal { albedo, fuzz });
                 } else {
                     // glass
-                    sphere_mat = Rc::new(Dielectric { ir: 1.5 });
+                    sphere_mat = Arc::new(Dielectric { ir: 1.5 });
                 }
 
                 let sphere = Sphere {
@@ -63,7 +63,7 @@ pub fn build_random_scene() -> HittableList {
         }
     }
 
-    let mat1: RcMaterial = Rc::new(Dielectric { ir: 1.5 });
+    let mat1: ArcMaterial = Arc::new(Dielectric { ir: 1.5 });
     let sphere1 = Sphere {
         center: Vec3::new(0.0, 1.0, 0.0),
         radius: 1.0,
@@ -71,7 +71,7 @@ pub fn build_random_scene() -> HittableList {
     };
     world.add(Box::new(sphere1));
 
-    let mat2: RcMaterial = Rc::new(Lambertian {
+    let mat2: ArcMaterial = Arc::new(Lambertian {
         albedo: Vec3::new(0.4, 0.2, 0.1),
     });
     let sphere2 = Sphere {
@@ -81,7 +81,7 @@ pub fn build_random_scene() -> HittableList {
     };
     world.add(Box::new(sphere2));
 
-    let mat3: RcMaterial = Rc::new(Metal {
+    let mat3: ArcMaterial = Arc::new(Metal {
         albedo: Vec3::new(0.7, 0.6, 0.5),
         fuzz: 0.0,
     });

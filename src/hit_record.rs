@@ -1,14 +1,14 @@
 use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::{Point3, Vec3};
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
     pub t: f64,
     pub front_face: bool,
-    pub mat_ptr: Option<Rc<dyn Material>>,
+    pub mat_ptr: Option<Arc<dyn Material + Send + Sync>>,
 }
 
 impl HitRecord {
@@ -38,7 +38,7 @@ impl HitRecord {
         self.t = other.t;
         self.front_face = other.front_face;
         self.mat_ptr = match &(other.mat_ptr) {
-            Some(val) => Some(Rc::clone(val)),
+            Some(val) => Some(Arc::clone(val)),
             None => None,
         };
     }

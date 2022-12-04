@@ -3,12 +3,12 @@ use crate::hittable::Hittable;
 use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::{Point3, Vec3};
-use std::rc::Rc;
+use std::sync::Arc;
 
 pub struct Sphere {
     pub center: Point3,
     pub radius: f64,
-    pub mat_ptr: Rc<dyn Material>,
+    pub mat_ptr: Arc<dyn Material + Send + Sync>,
 }
 
 impl Hittable for Sphere {
@@ -36,7 +36,7 @@ impl Hittable for Sphere {
         // update the hit-record
         record.t = root;
         record.p = ray.at(root);
-        record.mat_ptr = Some(Rc::clone(&self.mat_ptr));
+        record.mat_ptr = Some(Arc::clone(&self.mat_ptr));
         let outward_normal = (record.p - self.center) / self.radius;
         record.set_face_normal(&ray, outward_normal);
         return true;
