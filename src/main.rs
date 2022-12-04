@@ -26,10 +26,10 @@ mod sphere;
 mod util;
 mod vec3;
 
-const SAMPLES_PER_PIXEL: u32 = 100;
+const SAMPLES_PER_PIXEL: u32 = 16;
 const IMAGE_WIDTH: u32 = 900;
 const MAX_DEPTH: u32 = 100;
-const NUM_THREADS: u32 = 10;
+const NUM_THREADS: u32 = 8;
 
 fn main() {
     // image + camera
