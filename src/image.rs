@@ -1,5 +1,5 @@
 use crate::vec3::Color;
-use std::ops::{Add, AddAssign};
+use std::ops::AddAssign;
 
 pub struct Image {
     pub width: u32,

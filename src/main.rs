@@ -1,5 +1,5 @@
 use crate::camera::Camera;
-use crate::vec3::{Color, Point3};
+use crate::vec3::Point3;
 use std::sync::Arc;
 
 use crate::build_random_scene::build_random_scene;
